@@ -1,29 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 
-namespace blitSub.Domain
+namespace blitSub.Domain.DTO
 {
+    [Serializable]
     public class Artist
     {
-        private static string TAG = Artist.class.getSimpleName();
+        private static readonly string TAG = Artist.getSimpleName();
         public static string ROOT_ID = "-1";
-	    public static string MISSING_ID = "-2";
+        public static string MISSING_ID = "-2";
+        private int closeness;
 
         private string id;
-        private string name;
         private string index;
-        private bool starred;
+        private string name;
         private int rating;
-        private int closeness;
+        private bool starred;
 
         public Artist()
         {
-
         }
+
         public Artist(string id, string name)
         {
             this.id = id;
@@ -34,6 +31,7 @@ namespace blitSub.Domain
         {
             return id;
         }
+
         public void setId(string id)
         {
             this.id = id;
@@ -43,6 +41,7 @@ namespace blitSub.Domain
         {
             return name;
         }
+
         public void setName(string name)
         {
             this.name = name;
@@ -52,6 +51,7 @@ namespace blitSub.Domain
         {
             return index;
         }
+
         public void setIndex(string index)
         {
             this.index = index;
@@ -61,6 +61,7 @@ namespace blitSub.Domain
         {
             return starred;
         }
+
         public void setStarred(bool starred)
         {
             this.starred = starred;
@@ -70,39 +71,33 @@ namespace blitSub.Domain
         {
             return rating == null ? 0 : rating;
         }
+
         public void setRating(int rating)
         {
             if (rating == null || rating == 0)
-            {
                 this.rating = null;
-            }
             else
-            {
                 this.rating = rating;
-            }
         }
 
         public int getCloseness()
         {
             return closeness;
         }
+
         public void setCloseness(int closeness)
         {
             this.closeness = closeness;
         }
 
-        public bool equals(object o)
+        public override bool Equals(object o)
         {
             if (this == o)
-            {
                 return true;
-            }
             if (o == null || getClass() != o.getClass())
-            {
                 return false;
-            }
 
-            Artist entry = (Artist)o;
+            var entry = (Artist) o;
             return id.equals(entry.id);
         }
 
@@ -111,55 +106,53 @@ namespace blitSub.Domain
             return id.hashCode();
         }
 
-        public string toString()
+        public override string ToString()
         {
             return name;
         }
 
-        public static class ArtistComparator : Comparator<Artist> {
-
-        private string[] ignoredArticles;
-        private Collator collator;
-
-        public ArtistComparator(string[] ignoredArticles)
+        public static void sort(List<Artist> artists, string[] ignoredArticles)
         {
-            this.ignoredArticles = ignoredArticles;
-            this.collator = Collator.getInstance(Locale.US);
-            this.collator.setStrength(Collator.PRIMARY);
+            try
+            {
+                Collections.sort(artists, new ArtistComparator(ignoredArticles));
+            }
+            catch (Exception e)
+            {
+                Log.w(TAG, "Failed to sort artists", e);
+            }
         }
 
-        public int compare(Artist lhsArtist, Artist rhsArtist)
+        public static class ArtistComparator : Comparator<Artist>
         {
-            string lhs = lhsArtist.getName().ToLower();
-            string rhs = rhsArtist.getName().ToLower();
+            private readonly Collator collator;
 
-            for (string article : ignoredArticles)
+            private readonly string[] ignoredArticles;
+
+            public ArtistComparator(string[] ignoredArticles)
             {
-                int index = lhs.indexOf(article.toLowerCase() + " ");
-                if (index == 0)
-                {
-                    lhs = lhs.substring(article.length() + 1);
-                }
-                index = rhs.indexOf(article.toLowerCase() + " ");
-                if (index == 0)
-                {
-                    rhs = rhs.substring(article.length() + 1);
-                }
+                this.ignoredArticles = ignoredArticles;
+                collator = Collator.getInstance(Locale.US);
+                collator.setStrength(Collator.PRIMARY);
             }
 
-            return collator.compare(lhs, rhs);
-        }
-    }
+            public int compare(Artist lhsArtist, Artist rhsArtist)
+            {
+                string lhs = lhsArtist.getName().toLowerCase();
+                string rhs = rhsArtist.getName().toLowerCase();
 
-    public static void sort(List<Artist> artists, string[] ignoredArticles)
-    {
-        try
-        {
-            Collections.sort(artists, new ArtistComparator(ignoredArticles));
-        }
-        catch (Exception e)
-        {
-            Log.w(TAG, "Failed to sort artists", e);
+                foreach (var article in ignoredArticles)
+                {
+                    int index = lhs.indexOf(article.toLowerCase() + " ");
+                    if (index == 0)
+                        lhs = lhs.substring(article.length() + 1);
+                    index = rhs.indexOf(article.toLowerCase() + " ");
+                    if (index == 0)
+                        rhs = rhs.substring(article.length() + 1);
+                }
+
+                return collator.compare(lhs, rhs);
+            }
         }
     }
 }

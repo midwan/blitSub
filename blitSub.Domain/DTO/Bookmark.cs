@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Globalization;
 
-namespace blitSub.Domain
+namespace blitSub.Domain.DTO
 {
+    [Serializable]
     public class Bookmark
     {
         private DateTime changed;
@@ -60,14 +62,14 @@ namespace blitSub.Domain
             if (created != null)
                 try
                 {
-                    this.created = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH).parse(created);
+                    this.created = DateTime.ParseExact(created, "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
                 }
-                catch (ParseException e)
+                catch (Exception e)
                 {
-                    this.created = null;
+                    this.created = DateTime.MinValue;
                 }
             else
-                this.created = null;
+                this.created = DateTime.MinValue;
         }
 
         public void setCreated(DateTime created)
@@ -85,14 +87,14 @@ namespace blitSub.Domain
             if (changed != null)
                 try
                 {
-                    this.changed = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH).parse(changed);
+                    this.changed = DateTime.ParseExact(changed, "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
                 }
-                catch (ParseException e)
+                catch (Exception e)
                 {
-                    this.changed = null;
+                    this.changed = DateTime.MinValue;
                 }
             else
-                this.changed = null;
+                this.changed = DateTime.MinValue;
         }
 
         public void setChanged(DateTime changed)

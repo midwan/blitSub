@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace blitSub.Domain
+namespace blitSub.Domain.DTO
 {
+    [Serializable]
     public class ArtistInfo
     {
         private string biography;
