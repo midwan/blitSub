@@ -43,15 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DTO\Artist.cs" />
-    <Compile Include="DTO\ArtistiInfo.cs" />
-    <Compile Include="DTO\Bookmark.cs" />
-    <Compile Include="DTO\ChatMessage.cs" />
-    <Compile Include="DTO\Genre.cs" />
-    <Compile Include="DTO\Indexes.cs" />
-    <Compile Include="DTO\InternetRadioStation.cs" />
-    <Compile Include="DTO\Lyrics.cs" />
-    <Compile Include="DTO\MusicDirectory.cs" />
+    <Compile Include="Models\Artist.cs" />
+    <Compile Include="Models\ArtistiInfo.cs" />
+    <Compile Include="Models\Bookmark.cs" />
+    <Compile Include="Models\ChatMessage.cs" />
+    <Compile Include="Models\Genre.cs" />
+    <Compile Include="Models\Indexes.cs" />
+    <Compile Include="Models\InternetRadioStation.cs" />
+    <Compile Include="Models\Lyrics.cs" />
+    <Compile Include="Models\MusicDirectory.cs" />
+    <Compile Include="Models\MusicFolder.cs" />
+    <Compile Include="Models\PlayerQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
