@@ -309,7 +309,7 @@ namespace blitSub.Domain.Models
                         Log.w(TAG, "Non numbers in disc field!");
                     }
                     String bitrate = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
-                    SetBitRate(int.Parse((bitrate != null) ? bitrate : "0") / 1000);
+                    SetBitRate(int.Parse(bitrate ?? "0") / 1000);
                     String length = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                     SetDuration(int.Parse(length) / 1000);
                     String artist = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);

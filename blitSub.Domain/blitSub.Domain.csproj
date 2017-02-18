@@ -54,6 +54,15 @@
     <Compile Include="Models\MusicDirectory.cs" />
     <Compile Include="Models\MusicFolder.cs" />
     <Compile Include="Models\PlayerQueue.cs" />
+    <Compile Include="Models\Playlist.cs" />
+    <Compile Include="Models\PodcastChannel.cs" />
+    <Compile Include="Models\PodcastEpisode.cs" />
+    <Compile Include="Models\RemoteStatus.cs" />
+    <Compile Include="Models\SearchResult.cs" />
+    <Compile Include="Models\ServerInfo.cs" />
+    <Compile Include="Models\Share.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\Version.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
