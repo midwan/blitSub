@@ -14,7 +14,7 @@ namespace blitSub.Domain.Models
         public static readonly int TYPE_AMPACHE = 3;
         private static readonly Map<Integer, ServerInfo> SERVERS = new ConcurrentHashMap<Integer, ServerInfo>();
 
-        private bool isLicenseValid;
+        private bool _isLicenseValid;
         private Version restVersion;
         private int type;
 
@@ -25,12 +25,12 @@ namespace blitSub.Domain.Models
 
         public bool isLicenseValid()
         {
-            return isLicenseValid;
+            return _isLicenseValid;
         }
 
         public void setLicenseValid(bool licenseValid)
         {
-            isLicenseValid = licenseValid;
+            _isLicenseValid = licenseValid;
         }
 
         public Version getRestVersion()
