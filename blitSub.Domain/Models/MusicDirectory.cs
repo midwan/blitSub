@@ -23,7 +23,7 @@ namespace blitSub.Domain.Models
 
         public MusicDirectory(List<Entry> children)
         {
-            this._children = children;
+            _children = children;
             TAG = GetName();
         }
 
@@ -34,7 +34,7 @@ namespace blitSub.Domain.Models
 
         public void SetName(string name)
         {
-            this._name = name;
+            _name = name;
         }
 
         public string GetId()
@@ -44,7 +44,7 @@ namespace blitSub.Domain.Models
 
         public void SetId(string id)
         {
-            this._id = id;
+            _id = id;
         }
 
         public string GetParent()
@@ -54,25 +54,22 @@ namespace blitSub.Domain.Models
 
         public void SetParent(string parent)
         {
-            this._parent = parent;
+            _parent = parent;
         }
 
         public void AddChild(Entry child)
         {
-            if (child != null)
-            {
-                _children.Add(child);
-            }
+            if (child != null) _children.Add(child);
         }
 
         public void AddChildren(List<Entry> children)
         {
-            this._children.AddRange(children);
+            _children.AddRange(children);
         }
 
         public void ReplaceChildren(List<Entry> children)
         {
-            this._children = children;
+            _children = children;
         }
 
         public List<Entry> GetChildren()
@@ -83,32 +80,21 @@ namespace blitSub.Domain.Models
 
         public List<Entry> GetChildren(bool includeDirs, bool includeFiles)
         {
-            if (includeDirs && includeFiles)
-            {
-                return _children;
-            }
+            if (includeDirs && includeFiles) return _children;
 
-            List<Entry> result = new List<Entry>(_children.Count);
-            foreach (Entry child in _children)
-            {
+            var result = new List<Entry>(_children.Count);
+            foreach (var child in _children)
                 if (child != null && child.IsDirectory() && includeDirs || !child.IsDirectory() && includeFiles)
-                {
                     result.Add(child);
-                }
-            }
             return result;
         }
 
         public List<Entry> GetSongs()
         {
-            List<Entry> result = new List<Entry>();
-            foreach (Entry child in _children)
-            {
+            var result = new List<Entry>();
+            foreach (var child in _children)
                 if (child != null && !child.IsDirectory() && !child.IsVideo())
-                {
                     result.Add(child);
-                }
-            }
             return result;
         }
 
@@ -126,10 +112,8 @@ namespace blitSub.Domain.Models
         {
             // Only apply sorting on server version 4.7 and greater, where disc is supported
             if (ServerInfo.checkServerVersion(context, "1.8", instance))
-            {
                 SortChildren(Util.getPreferences(context)
                     .getBoolean(Constants.PREFERENCES_KEY_CUSTOM_SORT_ENABLED, true));
-            }
         }
 
         public void SortChildren(bool byYear)
@@ -139,10 +123,10 @@ namespace blitSub.Domain.Models
 
         public bool UpdateMetadata(MusicDirectory refreshedDirectory)
         {
-            bool metadataUpdated = false;
+            var metadataUpdated = false;
             foreach (var entry in _children)
             {
-                int index = refreshedDirectory._children.IndexOf(entry);
+                var index = refreshedDirectory._children.IndexOf(entry);
                 if (index != -1)
                 {
                     var refreshed = refreshedDirectory._children[index];
@@ -196,33 +180,26 @@ namespace blitSub.Domain.Models
 
         public bool UpdateEntriesList(Context context, int instance, MusicDirectory refreshedDirectory)
         {
-            bool changed = false;
+            var changed = false;
             foreach (var entry in _children)
-            {
                 // No longer exists in here
                 if (refreshedDirectory._children.IndexOf(entry) == -1)
                 {
                     _children.Remove(entry);
                     changed = true;
                 }
-            }
 
             // Make sure we contain all children from refreshed set
-            bool resort = false;
+            var resort = false;
             foreach (var refreshed in refreshedDirectory._children)
-            {
                 if (!_children.Contains(refreshed))
                 {
                     _children.Add(refreshed);
                     resort = true;
                     changed = true;
                 }
-            }
 
-            if (resort)
-            {
-                SortChildren(context, instance);
-            }
+            if (resort) SortChildren(context, instance);
 
             return changed;
         }
@@ -233,73 +210,68 @@ namespace blitSub.Domain.Models
             public static readonly int TYPE_SONG = 0;
             public static readonly int TYPE_PODCAST = 1;
             public static readonly int TYPE_AUDIO_BOOK = 2;
+            private string album;
+            private string albumId;
+            private string artist;
+            private string artistId;
+            private int bitRate;
+            private Bookmark bookmark;
+            private int closeness;
+            private string contentType;
+            private string coverArt;
+            private int customOrder;
+            private bool directory;
+            private int discNumber;
+            private int duration;
+            private string genre;
+            private string grandParent;
 
             private string id;
+
+            //[NotSerialized]
+            private readonly Artist linkedArtist;
             private string parent;
-            private string grandParent;
-            private string albumId;
-            private string artistId;
-            private bool directory;
-            private string title;
-            private string album;
-            private string artist;
-            private int track;
-            private int customOrder;
-            private int year;
-            private string genre;
-            private string contentType;
+            private string path;
+            private int rating;
+            private long size;
+            private bool starred;
             private string suffix;
+            private string title;
+            private int track;
             private string transcodedContentType;
             private string transcodedSuffix;
-            private string coverArt;
-            private long size;
-            private int duration;
-            private int bitRate;
-            private string path;
+            private int type;
             private bool video;
-            private int discNumber;
-            private bool starred;
-            private int rating;
-            private Bookmark bookmark;
-            private int type = 0;
-            private int closeness;
-            //[NotSerialized]
-            private Artist linkedArtist;
+            private int year;
 
-		public Entry()
+            public Entry()
             {
-
             }
+
             public Entry(string id)
             {
                 this.id = id;
             }
+
             public Entry(Artist artist)
             {
-                this.id = artist.GetId();
-                this.title = artist.GetName();
-                this.directory = true;
-                this.starred = artist.IsStarred();
-                this.rating = artist.GetRating();
-                this.linkedArtist = artist;
+                id = artist.GetId();
+                title = artist.GetName();
+                directory = true;
+                starred = artist.IsStarred();
+                rating = artist.GetRating();
+                linkedArtist = artist;
             }
 
-        public void LoadMetadata(File file)
+            public void LoadMetadata(File file)
             {
                 try
                 {
                     MediaMetadataRetriever metadata = new MediaMetadataRetriever();
                     metadata.setDataSource(file.getAbsolutePath());
-                    String discNumber = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER);
-                    if (discNumber == null)
-                    {
-                        discNumber = "1/1";
-                    }
-                    int slashIndex = discNumber.IndexOf("/");
-                    if (slashIndex > 0)
-                    {
-                        discNumber = discNumber.Substring(0, slashIndex);
-                    }
+                    var discNumber = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER) ?? "1/1";
+                    var slashIndex = discNumber.IndexOf("/", StringComparison.Ordinal);
+                    if (slashIndex > 0) discNumber = discNumber.Substring(0, slashIndex);
                     try
                     {
                         SetDiscNumber(int.Parse(discNumber));
@@ -308,20 +280,15 @@ namespace blitSub.Domain.Models
                     {
                         Log.w(TAG, "Non numbers in disc field!");
                     }
-                    String bitrate = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
+
+                    string bitrate = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
                     SetBitRate(int.Parse(bitrate ?? "0") / 1000);
-                    String length = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                    string length = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                     SetDuration(int.Parse(length) / 1000);
-                    String artist = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                    if (artist != null)
-                    {
-                        SetArtist(artist);
-                    }
-                    String album = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-                    if (album != null)
-                    {
-                        SetAlbum(album);
-                    }
+                    string artist = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                    if (artist != null) SetArtist(artist);
+                    string album = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                    if (album != null) SetAlbum(album);
                     metadata.release();
                 }
                 catch (Exception e)
@@ -329,30 +296,22 @@ namespace blitSub.Domain.Models
                     Log.i(TAG, "Device doesn't properly support MediaMetadataRetreiver", e);
                 }
             }
+
             public void rebaseTitleOffPath()
             {
                 try
                 {
-                    String filename = GetPath();
-                    if (filename == null)
-                    {
-                        return;
-                    }
+                    var filename = GetPath();
+                    if (filename == null) return;
 
-                    int index = filename.LastIndexOf('/');
+                    var index = filename.LastIndexOf('/');
                     if (index != -1)
                     {
                         filename = filename.Substring(index + 1);
-                        if (GetTrack() != null)
-                        {
-                            filename = filename.Replace(string.Format("%02d ", GetTrack()), "");
-                        }
+                        if (GetTrack() != null) filename = filename.Replace(string.Format("%02d ", GetTrack()), "");
 
                         index = filename.LastIndexOf('.');
-                        if (index != -1)
-                        {
-                            filename = filename.Substring(0, index);
-                        }
+                        if (index != -1) filename = filename.Substring(0, index);
 
                         SetTitle(filename);
                     }
@@ -446,13 +405,8 @@ namespace blitSub.Domain.Models
             public string GetAlbumDisplay()
             {
                 if (album != null && title.StartsWith("Disc "))
-                {
                     return album;
-                }
-                else
-                {
-                    return title;
-                }
+                return title;
             }
 
             public void SetAlbum(string album)
@@ -484,6 +438,7 @@ namespace blitSub.Domain.Models
             {
                 return customOrder;
             }
+
             public void SetCustomOrder(int customOrder)
             {
                 this.customOrder = customOrder;
@@ -628,37 +583,29 @@ namespace blitSub.Domain.Models
             {
                 this.starred = starred;
 
-                if (linkedArtist != null)
-                {
-                    linkedArtist.SetStarred(starred);
-                }
+                if (linkedArtist != null) linkedArtist.SetStarred(starred);
             }
 
             public int GetRating()
             {
                 return rating == null ? 0 : rating;
             }
+
             public void SetRating(int? rating)
             {
                 if (rating == null || rating == 0)
-                {
                     this.rating = null;
-                }
                 else
-                {
                     this.rating = rating;
-                }
 
-                if (linkedArtist != null)
-                {
-                    linkedArtist.SetRating(rating);
-                }
+                if (linkedArtist != null) linkedArtist.SetRating(rating);
             }
 
             public Bookmark GetBookmark()
             {
                 return bookmark;
             }
+
             public void SetBookmark(Bookmark bookmark)
             {
                 this.bookmark = bookmark;
@@ -668,18 +615,22 @@ namespace blitSub.Domain.Models
             {
                 return type;
             }
+
             public void SetType(int type)
             {
                 this.type = type;
             }
+
             public bool IsSong()
             {
                 return type == TYPE_SONG;
             }
+
             public bool IsPodcast()
             {
                 return this is PodcastEpisode || type == TYPE_PODCAST;
             }
+
             public bool IsAudioBook()
             {
                 return type == TYPE_AUDIO_BOOK;
@@ -699,8 +650,10 @@ namespace blitSub.Domain.Models
             {
                 try
                 {
-                    string cacheLocation = Util.getPreferences(context).getString(Constants.PREFERENCES_KEY_CACHE_LOCATION, null);
-                    return cacheLocation == null || id == null || id.IndexOf(cacheLocation, StringComparison.Ordinal) == -1;
+                    string cacheLocation = Util.getPreferences(context)
+                        .getString(Constants.PREFERENCES_KEY_CACHE_LOCATION, null);
+                    return cacheLocation == null || id == null ||
+                           id.IndexOf(cacheLocation, StringComparison.Ordinal) == -1;
                 }
                 catch (Exception e)
                 {
@@ -711,122 +664,94 @@ namespace blitSub.Domain.Models
                 }
             }
 
-        public override bool Equals(object o)
+            public override bool Equals(object o)
             {
-                if (this == o)
-                {
-                    return true;
-                }
-                if (o == null || base.GetType() != o.GetType())
-                {
-                    return false;
-                }
+                if (this == o) return true;
+                if (o == null || base.GetType() != o.GetType()) return false;
 
-                Entry entry = (Entry)o;
+                var entry = (Entry) o;
                 return id.Equals(entry.id);
             }
 
-        public override int GetHashCode()
+            public override int GetHashCode()
             {
                 return id.GetHashCode();
             }
 
-        public override string ToString()
+            public override string ToString()
             {
                 return title;
             }
         }
 
-        public class EntryComparator : IComparer<Entry> {
-
-        private bool byYear;
-
-        public EntryComparator(bool byYear)
+        public class EntryComparator : IComparer<Entry>
         {
-            this.byYear = byYear;
-        }
+            private readonly bool byYear;
 
-        public int Compare(Entry lhs, Entry rhs)
-        {
-            if (lhs.IsDirectory() && !rhs.IsDirectory())
+            public EntryComparator(bool byYear)
             {
-                return -1;
+                this.byYear = byYear;
             }
-            else if (!lhs.IsDirectory() && rhs.IsDirectory())
+
+            public int Compare(Entry lhs, Entry rhs)
             {
-                return 1;
-            }
-            else if (lhs.IsDirectory() && rhs.IsDirectory())
-            {
-                if (byYear)
+                if (lhs.IsDirectory() && !rhs.IsDirectory()) return -1;
+
+                if (!lhs.IsDirectory() && rhs.IsDirectory()) return 1;
+
+                if (lhs.IsDirectory() && rhs.IsDirectory())
                 {
-                    int lhsYear = lhs.GetYear();
-                    int rhsYear = rhs.GetYear();
-                    if (lhsYear != null && rhsYear != null)
+                    if (byYear)
                     {
-                        return lhsYear.CompareTo(rhsYear);
+                        var lhsYear = lhs.GetYear();
+                        var rhsYear = rhs.GetYear();
+                        if (lhsYear != null && rhsYear != null)
+                            return lhsYear.CompareTo(rhsYear);
+                        if (lhsYear != null)
+                            return -1;
+                        if (rhsYear != null) return 1;
                     }
-                    else if (lhsYear != null)
-                    {
+
+                    return string.CompareOrdinal(lhs.GetAlbumDisplay(), rhs.GetAlbumDisplay());
+                }
+
+                var lhsDisc = lhs.GetDiscNumber();
+                var rhsDisc = rhs.GetDiscNumber();
+
+                if (lhsDisc != null && rhsDisc != null)
+                {
+                    if (lhsDisc < rhsDisc)
                         return -1;
-                    }
-                    else if (rhsYear != null)
-                    {
-                        return 1;
-                    }
+                    if (lhsDisc > rhsDisc) return 1;
                 }
 
-                return string.CompareOrdinal(lhs.GetAlbumDisplay(), rhs.GetAlbumDisplay());
-            }
-
-            int lhsDisc = lhs.GetDiscNumber();
-            int rhsDisc = rhs.GetDiscNumber();
-
-            if (lhsDisc != null && rhsDisc != null)
-            {
-                if (lhsDisc < rhsDisc)
-                {
+                var lhsTrack = lhs.GetTrack();
+                var rhsTrack = rhs.GetTrack();
+                if (lhsTrack != null && rhsTrack != null && lhsTrack != rhsTrack)
+                    return lhsTrack.CompareTo(rhsTrack);
+                if (lhsTrack != null)
                     return -1;
-                }
-                else if (lhsDisc > rhsDisc)
+                if (rhsTrack != null) return 1;
+
+                return string.CompareOrdinal(lhs.GetTitle(), rhs.GetTitle());
+            }
+
+            public static void Sort(List<Entry> entries)
+            {
+                Sort(entries, true);
+            }
+
+            public static void Sort(List<Entry> entries, bool byYear)
+            {
+                try
                 {
-                    return 1;
+                    entries.Sort(new EntryComparator(byYear));
                 }
-            }
-
-            int lhsTrack = lhs.GetTrack();
-            int rhsTrack = rhs.GetTrack();
-            if (lhsTrack != null && rhsTrack != null && lhsTrack != rhsTrack)
-            {
-                return lhsTrack.CompareTo(rhsTrack);
-            }
-            else if (lhsTrack != null)
-            {
-                return -1;
-            }
-            else if (rhsTrack != null)
-            {
-                return 1;
-            }
-
-            return string.CompareOrdinal(lhs.GetTitle(), rhs.GetTitle());
-        }
-
-        public static void Sort(List<Entry> entries)
-        {
-            Sort(entries, true);
-        }
-        public static void Sort(List<Entry> entries, bool byYear)
-        {
-            try
-            {
-                entries.Sort(new EntryComparator(byYear));
-            }
-            catch (Exception e)
-            {
-                Log.w(TAG, "Failed to sort MusicDirectory");
+                catch (Exception e)
+                {
+                    Log.w(TAG, "Failed to sort MusicDirectory");
+                }
             }
         }
     }
-}
 }

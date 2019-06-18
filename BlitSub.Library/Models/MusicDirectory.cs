@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BlitSub.Library.Models
@@ -111,7 +112,171 @@ namespace BlitSub.Library.Models
                 LinkedArtist = artist;
             }
 
+            public void LoadMetadata()
+            {
+                //TODO ?
+            }
 
+            public void RebaseTitleOffPath()
+            {
+                try
+                {
+                    var filename = Path;
+                    if (filename == null)
+                        return;
+
+                    var index = filename.LastIndexOf('/');
+                    if (index != -1)
+                    {
+                        filename = filename.Substring(index + 1);
+                        filename = filename.Replace(string.Format("%02d", Track), "");
+
+                        index = filename.LastIndexOf('.');
+                        if (index != -1)
+                            filename = filename.Substring(0, index);
+
+                        Title = filename;
+                    }
+                }
+                catch (Exception e)
+                {
+                    //TODO Log exception
+                    // "Failed to update title based off of path"
+                }
+            }
+
+            public bool IsAlbum()
+            {
+                return Parent != null || Artist != null;
+            }
+
+            public string GetAlbumDisplay()
+            {
+                if (Album != null && Title.StartsWith("Disc "))
+                {
+                    return Album;
+                }
+
+                return Title;
+            }
+
+            public void SetStarred(bool starred)
+            {
+                Starred = starred;
+
+                if (LinkedArtist != null)
+                {
+                    LinkedArtist.Starred = starred;
+                }
+            }
+
+            public void SetRating(int rating)
+            {
+                Rating = rating;
+
+                if (LinkedArtist != null)
+                    LinkedArtist.Rating = rating;
+            }
+
+            public bool IsSong()
+            {
+                return Type == TYPE_SONG;
+            }
+
+            public bool IsPodcast()
+            {
+                return this is PodcastEpisode || Type == TYPE_PODCAST;
+            }
+
+            public bool IsAudioBook()
+            {
+                return Type == TYPE_AUDIO_BOOK;
+            }
+
+            public override bool Equals(object o)
+            {
+                if (this == o)
+                    return true;
+
+                if (o == null || base.GetType() != o.GetType())
+                    return false;
+
+                var entry = (Entry) o;
+                return Id.Equals(entry.Id);
+            }
+
+            public override int GetHashCode()
+            {
+                return Id.GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return Title;
+            }
+        }
+
+        public class EntryComparator : IComparer<Entry>
+        {
+            private readonly bool _byYear;
+
+            public EntryComparator(bool byYear)
+            {
+                _byYear = byYear;
+            }
+
+            public int Compare(Entry lhs, Entry rhs)
+            {
+                if (lhs?.IsDirectory == true && rhs?.IsDirectory == false) return -1;
+                if (lhs?.IsDirectory == false && rhs?.IsDirectory == true) return 1;
+                if (lhs?.IsDirectory == true && rhs?.IsDirectory == true)
+                {
+                    if (_byYear)
+                    {
+                        return lhs.Year.CompareTo(rhs.Year);
+                    }
+
+                    return string.CompareOrdinal(lhs.GetAlbumDisplay(), rhs.GetAlbumDisplay());
+                }
+
+                var lhsDisc = lhs?.DiscNumber;
+                var rhsDisc = rhs?.DiscNumber;
+
+                if (lhsDisc != null && rhsDisc != null)
+                {
+                    if (lhsDisc < rhsDisc)
+                        return -1;
+                    if (lhsDisc > rhsDisc) return 1;
+                }
+
+                var lhsTrack = lhs?.Track;
+                var rhsTrack = rhs?.Track;
+                if (lhsTrack != null && rhsTrack != null && lhsTrack != rhsTrack)
+                    return int.Parse(lhsTrack.ToString()).CompareTo(rhsTrack);
+                if (lhsTrack != null)
+                    return -1;
+                if (rhsTrack != null) return 1;
+
+                return string.CompareOrdinal(lhs.Title, rhs.Title);
+            }
+
+            public static void Sort(List<Entry> entries)
+            {
+                Sort(entries, true);
+            }
+
+            public static void Sort(List<Entry> entries, bool byYear)
+            {
+                try
+                {
+                    entries.Sort(new EntryComparator(byYear));
+                }
+                catch (Exception e)
+                {
+                    //TODO Log exception
+                    // "Failed to sort MusicDirectory"
+                }
+            }
         }
     }
 }
